@@ -1,20 +1,13 @@
 import { CameraView, useCameraPermissions, CameraType} from 'expo-camera';
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity, Image, SafeAreaViewBase} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from "expo-router";
 
 export default function CameraScreen() {
-  const [permission, setHasPermission] = useCameraPermissions();
   const [cameraRef, setCameraRef] = useState<CameraView | null>(null);
   const [facing, setFacing] = useState<CameraType>('back');
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-
-  if (!permission) {
-    return <Text>Checking permissions…</Text>;
-  }
-
-  if (!permission.granted) {
-    return <Button title="Grant Camera Permission" onPress={setHasPermission} />;
-  }
 
   const toggleCameraFacing = () => {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
@@ -32,7 +25,8 @@ export default function CameraScreen() {
   const resetPhoto = () => setPhotoUri(null);
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <Button title="Go Back" onPress={() => router.back()} />
         {photoUri ? (
             <View style={{ flex: 1 }}>
             <Image
@@ -68,12 +62,12 @@ export default function CameraScreen() {
         onPress={takePhoto}
       />
         }
-                  {/* <View style={styles.buttonContainer}>
+                  <View style={styles.buttonContainer}>
          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
            <Text style={styles.text}>Flip Camera</Text>
          </TouchableOpacity>
-      </View> */}
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
