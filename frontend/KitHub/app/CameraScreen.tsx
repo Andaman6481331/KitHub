@@ -23,7 +23,7 @@ export default function CameraScreen() {
     }
   };
   const resetPhoto = () => setPhotoUri(null);
-
+  
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Button title="Go Back" onPress={() => router.back()} />
