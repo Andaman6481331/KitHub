@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { View, Text, StyleSheet, SectionList, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, TrendingUp, TrendingDown, Clock, CheckCircle2 } from 'lucide-react-native';
@@ -28,8 +28,8 @@ export default function HistoryScreen() {
   // Mock history data
   const mockHistory: HistoryUpdate[] = [
     ...(newUpdate ? [{
-      id: 'new',
       ...newUpdate,
+      id: 'new',
       user: 'You'
     }] : []),
     {
@@ -162,16 +162,7 @@ export default function HistoryScreen() {
     );
   };
 
-  const renderSection = ({ section }: { section: { title: string; data: HistoryUpdate[] } }) => (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{section.title}</Text>
-      {section.data.map((item) => (
-        <View key={item.id}>
-          {renderHistoryCard({ item, isNew: item.id === 'new' })}
-        </View>
-      ))}
-    </View>
-  );
+
 
   const sections = [
     ...(todayUpdates.length > 0 ? [{ title: 'Today', data: todayUpdates }] : []),
@@ -188,6 +179,7 @@ export default function HistoryScreen() {
             pressed && styles.buttonPressed,
           ]}
           onPress={() => router.back()}
+          // onPress={() => router.push('/search')}
         >
           <ArrowLeft color="#FFFFFF" size={20} />
         </Pressable>
@@ -204,12 +196,17 @@ export default function HistoryScreen() {
       )}
 
       {/* Content */}
-      <FlatList
-        data={sections}
-        renderItem={renderSection}
-        keyExtractor={(item) => item.title}
+      <SectionList
+        sections={sections}
+        renderItem={({ item }) => renderHistoryCard({ item, isNew: item.id === 'new' })}
+        renderSectionHeader={({ section: { title } }) => (
+          <Text style={styles.sectionTitle}>{title}</Text>
+        )}
+        renderSectionFooter={() => <View style={{ height: 32 }} />}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        stickySectionHeadersEnabled={false}
       />
     </SafeAreaView>
   );

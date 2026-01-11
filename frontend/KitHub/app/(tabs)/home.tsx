@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Camera, Search, AlertTriangle, Clock, Package, LogOut } from 'lucide-react-native';
-import { Button } from '../components/ui/Button';
+// import { Button } from '../components/ui/Button';
 
 export default function HomeScreen() {
   const userName = 'Sarah Mitchell';

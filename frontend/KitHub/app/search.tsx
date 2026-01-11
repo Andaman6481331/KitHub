@@ -1,39 +1,64 @@
-import { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, Pressable } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, FlatList, Pressable, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ArrowLeft, Search, Package, TrendingDown, TrendingUp } from 'lucide-react-native';
 // import { Button } from './components/ui/Button';
 
 interface InventoryItem {
+  id: number;
   sku: string;
   name: string;
+  description: string;
   category: string;
   stock: number;
   status: 'low' | 'normal' | 'high';
+  img_url: string;
+  price1: number;
+  price2: number;
+  price3: number;
+  price4: number;
+  price5: number;
 }
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [items, setItems] = useState<InventoryItem[]>([]);
 
-  // Mock inventory data
-  const inventory: InventoryItem[] = [
-    { sku: 'SKU-2847-XL', name: 'Organic Coffee Beans', category: 'Beverages', stock: 48, status: 'normal' },
-    { sku: 'SKU-1923-MD', name: 'Organic Green Tea', category: 'Beverages', stock: 12, status: 'low' },
-    { sku: 'SKU-3456-LG', name: 'Premium Honey', category: 'Pantry', stock: 45, status: 'normal' },
-    { sku: 'SKU-5678-SM', name: 'Herbal Tea Mix', category: 'Beverages', stock: 68, status: 'high' },
-    { sku: 'SKU-9012-MD', name: 'Dark Chocolate Bar', category: 'Snacks', stock: 8, status: 'low' },
-    { sku: 'SKU-7890-XL', name: 'Protein Powder', category: 'Supplements', stock: 28, status: 'normal' },
-    { sku: 'SKU-4567-SM', name: 'Coconut Oil', category: 'Pantry', stock: 15, status: 'low' },
-    { sku: 'SKU-8901-LG', name: 'Almond Butter', category: 'Pantry', stock: 52, status: 'normal' },
-  ];
+  useEffect(() => {
+    // fetch("http://192.168.1.40:8000/items/")   //truehomewifi (Current Local IP)
+    fetch("http://192.168.1.40:8000/items/")
+      .then((response) => response.json())
+      .then((data) => {      
+      const inventory: InventoryItem[] = data.items.map(
+        ([id, sku, name, description, category, stock, img_url, price1, price2, price3, price4, price5]: any) => ({
+          id,
+          sku,
+          name,
+          description,
+          category,
+          stock,
+          status: stock < 15 ? 'low' : 'normal',
+          img_url,
+          price1,
+          price2,
+          price3,
+          price4,
+          price5,
+        })
+      );
+      setItems(inventory);
+    })
+    .catch(console.error);
+  }, []);
 
-  const filteredItems = inventory.filter(item =>
+  const filteredItems = items.filter(item =>
     searchQuery.length === 0 ||
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
 
   const handleSelectItem = (item: InventoryItem) => {
     router.push({
@@ -41,13 +66,14 @@ export default function SearchScreen() {
       params: {
         sku: item.sku,
         name: item.name,
+        description: item.description,
         category: item.category,
         currentStock: item.stock,
         minStock: 20,
         maxStock: 100,
         location: 'Aisle 3, Shelf B',
         lastRestocked: '2 days ago',
-        image: 'https://images.unsplash.com/photo-1561766858-62033ae40ec3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2ZmZWUlMjBiZWFucyUyMGJhZ3xlbnwxfHx8fDE3NjgwNTE3MTZ8MA&ixlib=rb-4.1.0&q=80&w=1080'
+        image: `http://192.168.1.40:8000/images/${item.img_url}`,
       }
     });
   };
@@ -69,7 +95,12 @@ export default function SearchScreen() {
       onPress={() => handleSelectItem(item)}
     >
       <View style={styles.itemIconContainer}>
-        <Package color="#6B5D4F" size={24} />
+        {/* <Package color="#6B5D4F" size={24} /> */}
+        <Image 
+          source={{ uri: `http://192.168.1.40:8000/images/${item.img_url}` }}
+          style={styles.itemImage}
+          resizeMode="cover"
+        />
       </View>
 
       <View style={styles.itemContent}>
@@ -258,6 +289,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8DFD6',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden', // Ensure image stays within bounds
+  },
+  itemImage: {
+    width: '100%',
+    height: '100%',
   },
   itemContent: {
     flex: 1,

@@ -19,7 +19,6 @@ interface ItemDetailParams {
 
 export default function ItemDetailScreen() {
 const params = useLocalSearchParams() as Partial<ItemDetailParams>;
-
   
   const itemData = {
     sku: params.sku || 'SKU-2847-XL',
@@ -36,6 +35,23 @@ const params = useLocalSearchParams() as Partial<ItemDetailParams>;
   const [stock, setStock] = useState(itemData.currentStock);
   const [adjustment, setAdjustment] = useState(0);
 
+  const updateStock = async (delta: number) => {
+  try {
+    await fetch("http://192.168.1.40:8000/items/update-stock", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        sku: itemData.sku,
+        delta
+      })
+    });
+  } catch (err) {
+    console.error("Failed to update stock", err);
+  }
+};
+
   const handleIncrease = () => {
     if (stock < itemData.maxStock) {
       setStock(stock + 1);
@@ -51,6 +67,7 @@ const params = useLocalSearchParams() as Partial<ItemDetailParams>;
   };
 
   const handleSave = () => {
+    updateStock(adjustment);
     router.push({
       pathname: '/(tabs)/history',
       params: {

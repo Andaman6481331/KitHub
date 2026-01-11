@@ -2,9 +2,11 @@ import pymysql
 import os
 import shutil
 import traceback
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Body
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from ultralytics import YOLO
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -16,12 +18,49 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount the assets directory to serve images
+# Path relative to backend/db_test.py -> ../frontend/KitHub/assets/stockImages
+app.mount("/images", StaticFiles(directory="../frontend/KitHub/assets/stockImages"), name="images")
+
 # Load YOLO model once
 model = YOLO("model2.pt")
 
-# @app.get("/")
-# def root():
-#     return {"message": "Hello World"}
+
+# Stock Update
+class StockUpdate(BaseModel):
+    sku: str
+    delta: int  # +1 or -1
+@app.post("/items/update-stock")
+def update_stock(payload: StockUpdate):
+    conn = pymysql.connect(
+        host="127.0.0.1",
+        port=3306,
+        user="root",
+        password="Andaman#1",
+        database="kithub"
+    )
+
+    try:
+        with conn.cursor() as cursor:
+            # Update stock safely
+            cursor.execute(
+                """
+                UPDATE items
+                SET stock = GREATEST(stock + %s, 0)
+                WHERE sku = %s
+                """,
+                (payload.delta, payload.sku)
+            )
+
+        conn.commit()
+        return {"success": True}
+
+    except Exception as e:
+        conn.rollback()
+        return {"success": False, "error": str(e)}
+
+    finally:
+        conn.close()
 
 @app.get("/items/")
 def get_items():

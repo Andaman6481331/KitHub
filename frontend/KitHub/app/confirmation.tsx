@@ -11,7 +11,8 @@ interface ConfirmationParams {
 }
 
 export default function ConfirmationScreen() {
-  const params = useLocalSearchParams<ConfirmationParams>();
+//   const params = useLocalSearchParams<ConfirmationParams>();
+const params = useLocalSearchParams() as Partial<ConfirmationParams>;
   
   const {
     sku = 'SKU-2847-XL',
