@@ -1,101 +1,167 @@
-import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { router, Stack } from "expo-router";
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import React, { useState } from "react";
+import { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Image, Pressable, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import { LogIn } from 'lucide-react-native';
 
-interface InventoryItem {
-  id: string;
-  name: string;
-}
+export default function LoginScreen() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-export default function index() {
-  // const inventory = [
-  //   { id: "sku001", name: "Item 1" },
-  //   { id: "sku002", name: "Item 2" },
-  //   { id: "sku003", name: "Item 3" },
-  // ];
-  const [inventory, setInventory] = useState<InventoryItem[]>([
-    { id: "sku001", name: "Item 1" },
-    { id: "sku002", name: "Item 2" },
-    { id: "sku003", name: "Item 3" },
-  ]);
-
- // Delete item
-  const deleteItem = (id: string) => {
-    setInventory((prev) => prev.filter((x) => x.id !== id));
+  const handleLogin = () => {
+    // Simple validation - in real app, authenticate with backend
+    if (username && password) {
+      router.replace('/(tabs)/home');
+    }
   };
-
-  // Edit item name
-  const editItem = (item: InventoryItem) => {
-    Alert.prompt(
-      "Edit Name",
-      "Enter new item name",
-      (newName: string) => {
-        if (!newName) return;
-        setInventory((prev) =>
-          prev.map((x) => (x.id === item.id ? { ...x, name: newName } : x))
-        );
-      },
-      "plain-text",
-      item.name
-    );
-  };
-
-  // Right actions for swipe
-  const renderRightActions = (item: InventoryItem) => (
-    <View style={styles.actionsContainer}>
-      <TouchableOpacity style={[styles.actionButton, styles.edit]} onPress={() => editItem(item)}>
-        <Text style={styles.actionText}>Edit</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.actionButton, styles.delete]} onPress={() => deleteItem(item.id)}>
-        <Text style={styles.actionText}>Delete</Text>
-      </TouchableOpacity>
-    </View>
-  );
 
   return (
-    <View style={{ flex: 1 }}>
-      <FlatList
-        data={inventory}
-        keyExtractor={(item) => (item.id)}
-        renderItem={({ item }) => (
-        <Swipeable renderRightActions={() => renderRightActions(item)}>
-          <TouchableOpacity
-            style={styles.item}
-            onPress={() => router.push(`/Inventory/${item.id}`)}
-          >
-            <Text style={styles.itemText}>{item.name}</Text>
-          </TouchableOpacity>
-        </Swipeable>
-        )}
-      />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Logo/Header */}
+          <View style={styles.header}>
+            <View style={styles.logoContainer}>
+              <Text style={styles.logoText}>KitHub</Text>
+            </View>
+            <Text style={styles.subtitle}>Inventory Management</Text>
+          </View>
+
+          {/* Login Form */}
+          <View style={styles.form}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Username</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your username"
+                placeholderTextColor="#7A6F63"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your password"
+                placeholderTextColor="#7A6F63"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.loginButton,
+                pressed && styles.loginButtonPressed,
+              ]}
+              onPress={handleLogin}
+            >
+              <LogIn color="#FFFFFF" size={20} />
+              <Text style={styles.loginButtonText}>Sign In</Text>
+            </Pressable>
+
+            <Text style={styles.helpText}>
+              Demo: Use any username and password to login
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
-  Title: {
-    fontSize: 30,
-    fontWeight: "bold"
+  container: {
+    flex: 1,
+    backgroundColor: '#F9F8F6',
   },
-  item: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "#B87C4C",
+  keyboardView: {
+    flex: 1,
   },
-  itemText: { color: "white", fontSize: 18 },
-  actionsContainer: {
-    flexDirection: "row",
-    width: 150,
-    justifyContent: "flex-end",
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: 24,
   },
-  actionButton: {
-    width: 75,
-    justifyContent: "center",
-    alignItems: "center",
+  header: {
+    alignItems: 'center',
+    marginBottom: 48,
   },
-  edit: { backgroundColor: "#4CAF50" },
-  delete: { backgroundColor: "#F44336" },
-  actionText: { color: "white", fontWeight: "bold" },
+  logoContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#6B5D4F',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#7A6F63',
+  },
+  form: {
+    width: '100%',
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#3D3226',
+    marginBottom: 8,
+  },
+  input: {
+    height: 48,
+    borderWidth: 2,
+    borderColor: '#D4C7B8',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#3D3226',
+    backgroundColor: '#FFFFFF',
+  },
+  loginButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    height: 56,
+    backgroundColor: '#6B5D4F',
+    borderRadius: 12,
+    marginTop: 12,
+  },
+  loginButtonPressed: {
+    opacity: 0.7,
+  },
+  loginButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  helpText: {
+    fontSize: 12,
+    color: '#7A6F63',
+    textAlign: 'center',
+    marginTop: 16,
+  },
 });
