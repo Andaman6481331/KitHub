@@ -26,8 +26,8 @@ export default function SearchScreen() {
   const [items, setItems] = useState<InventoryItem[]>([]);
 
   useEffect(() => {
-    // fetch("http://192.168.1.40:8000/items/")   //truehomewifi (Current Local IP)
-    fetch("http://192.168.1.40:8000/items/")
+    // fetch(`${process.env.EXPO_PUBLIC_API_URL}/items/`)
+    fetch(`${process.env.EXPO_PUBLIC_API_URL}/items/`)
       .then((response) => response.json())
       .then((data) => {      
       const inventory: InventoryItem[] = data.items.map(
@@ -73,7 +73,7 @@ export default function SearchScreen() {
         maxStock: 100,
         location: 'Aisle 3, Shelf B',
         lastRestocked: '2 days ago',
-        image: `http://192.168.1.40:8000/images/${item.img_url}`,
+        image: `${process.env.EXPO_PUBLIC_API_URL}/images/${item.img_url}`,
       }
     });
   };
@@ -97,7 +97,7 @@ export default function SearchScreen() {
       <View style={styles.itemIconContainer}>
         {/* <Package color="#6B5D4F" size={24} /> */}
         <Image 
-          source={{ uri: `http://192.168.1.40:8000/images/${item.img_url}` }}
+          source={{ uri: `${process.env.EXPO_PUBLIC_API_URL}/images/${item.img_url}` }}
           style={styles.itemImage}
           resizeMode="cover"
         />

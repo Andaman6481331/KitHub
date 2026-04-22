@@ -1,0 +1,13 @@
+{
+  "name": "kithub-root",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev-frontend\" \"npm run dev-backend\"",
+    "dev-frontend": "npm start --prefix frontend/KitHub",
+    "dev-backend": "cd backend && uvicorn db_test:app --reload --host 0.0.0.0 --port 8000"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "expo-cli": "^6.3.12"
+  }
+}

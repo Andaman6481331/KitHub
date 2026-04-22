@@ -37,7 +37,7 @@ const params = useLocalSearchParams() as Partial<ItemDetailParams>;
 
   const updateStock = async (delta: number) => {
   try {
-    await fetch("http://192.168.1.40:8000/items/update-stock", {
+    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/items/update-stock`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
